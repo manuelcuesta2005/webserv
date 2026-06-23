@@ -1,51 +1,53 @@
-# Makefile con dos binarios: test_tokenizer y test_parser
-# Los .o se guardan en obj/ replicando la estructura de src/.
+# ==============================================================================
+#                               CONFIGURACIÓN
+# ==============================================================================
 
-CXX        = c++
-CXXFLAGS   = -Wall -Wextra -Werror -std=c++98 -Iinclude
+NAME        = webserv
+CXX         = c++
+CXXFLAGS    = -Wall -Wextra -Werror -std=c++98 -Iinclude
 
-SRC_DIR    = src
-OBJ_DIR    = obj
+SRC_DIR     = src
+OBJ_DIR     = obj
 
-# Archivos comunes a ambos binarios
-COMMON_SRCS = config/Token.cpp \
-              config/ConfigError.cpp \
-              config/ConfigTypes.cpp \
-              config/ConfigTokenizer.cpp
+# ==============================================================================
+#                        DETECCIÓN DINÁMICA DE ARCHIVOS
+# ==============================================================================
 
-# Específicos de cada binario
-TOK_SRCS    = test_tokenizer.cpp
-PARSER_SRCS = config/ConfigParser.cpp \
-			  config/ConfigValidator.cpp \
-              test_parser.cpp core/socket.cpp
+# Busca TODOS los archivos .cpp dentro de la carpeta 'src' y sus subcarpetas
+SRCS        = $(shell find $(SRC_DIR) -name "*.cpp")
 
-# Objetos
-COMMON_OBJS = $(COMMON_SRCS:%.cpp=$(OBJ_DIR)/%.o)
-TOK_OBJS    = $(TOK_SRCS:%.cpp=$(OBJ_DIR)/%.o)
-PARSER_OBJS = $(PARSER_SRCS:%.cpp=$(OBJ_DIR)/%.o)
+# Transforma la lista de 'src/camino/archivo.cpp' a 'obj/camino/archivo.o'
+OBJS        = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
-# Binarios
-TOK_BIN    = test_tokenizer
-PARSER_BIN = test_parser
+# ==============================================================================
+#                                   REGLAS
+# ==============================================================================
 
-all: $(TOK_BIN) $(PARSER_BIN)
+all: $(NAME)
 
-$(TOK_BIN): $(COMMON_OBJS) $(TOK_OBJS)
+# Enlace del ejecutable final unificado
+$(NAME): $(OBJS)
+	@echo "🔗 Enlazando el servidor central $(NAME)..."
 	$(CXX) $(CXXFLAGS) -o $@ $^
+	@echo "🚀 ¡Webserv listo para correr! Ejecuta: ./$(NAME)"
 
-$(PARSER_BIN): $(COMMON_OBJS) $(PARSER_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
-
+# Regla genérica que mantiene la estructura de subcarpetas en 'obj/'
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
+	@echo "🧱 Compilando $<..."
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Limpieza de objetos
 clean:
+	@echo "🧹 Limpiando archivos objeto..."
 	rm -rf $(OBJ_DIR)
 
+# Limpieza total (objetos + ejecutable)
 fclean: clean
-	rm -f $(TOK_BIN) $(PARSER_BIN)
+	@echo "🗑️ Eliminando ejecutable..."
+	rm -f $(NAME)
 
+# Re-compilación desde cero
 re: fclean all
 
 .PHONY: all clean fclean re

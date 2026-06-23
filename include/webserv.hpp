@@ -14,6 +14,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+#include <cctype>
+#include <cstdlib>
 #include <sys/socket.h>
 #ifdef __linux__
 # include <sys/epoll.h>
@@ -33,8 +35,12 @@
 #include "parser/ConfigValidator.hpp"
 #include "parser/Token.hpp"
 
-// Core: Clases usadas para la configuracion e
-// inicializacion del servidor
+// Http: Clases para el manejo de las peticiones HTTP y su parseo
+#include "http/HttpRequest.hpp"
+#include "http/HttpRequestParser.hpp"
+#include "router/Router.hpp"
+
+// Core: Clases usadas para la configuracion e inicializacion del servidor
 #include "core/socket.hpp"
 
 #endif

@@ -17,6 +17,11 @@ Socket::~Socket() {
             close(listener->_fd);
         }
     }
+    for (std::map<int, HttpRequest>::iterator it = _requests.begin(); it != _requests.end(); ++it) {
+        close(it->first)
+    }
+    if (_epoll_fd != -1)
+        _requests.erase(_epoll_fd);
 }
 
 void    Socket::setPorts(const GlobalConfig& config) {
@@ -73,22 +78,128 @@ void    Socket::configSocket(void) {
     }
 }
 
+void    Socket::disconnectClient(int client_fd) {
+    std::cout << "Cliente desconectado en el fd: " << std::endl;
+    epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client_fd, NULL);
+    close(client_fd);
+    _requests.erase(client_fd);
+    _responses.erase(client_fd);
+}
+
+void    Socket::handleNewConnection(int listen_fd) {
+    struct sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    int client_fd = accept(listen_fd, (struct sockaddr *)&client_addr, &client_len);
+    if (client_fd < 0) {
+        std::cerr << "Error accept: " << strerror(errno) << std::endl;
+        return ;
+    }
+    if (fcntl(client_fd, F_SETFL, O_NONBLOCK) < 0) {
+        std::cerr << "Error fcntl: " << strerror(errno) << std::endl;
+        close(client_fd);
+        return ;
+    }
+    struct epoll_event client_event;
+    std::memset(client_event, 0, sizeof(client_event));
+    client_event.events = EPOLLIN;
+    client_event.data.fd = client_fd;
+    if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event) < 0) {
+        std::cerr << "Error epoll ctl: " << strerror(errno) << std::endl;
+        close(client_fd);
+        return ;
+    }
+    std::cout << "Nuevo Cliente conectado con exito en el fd: " << client_fd << std::endl;
+}
+
+void    Socket::handleClientRead(int client_fd) {
+    char buffer[4096];
+    std::memset(buffer, 0, sizeof(buffer));
+    
+    int socket_bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+    if (socket_bytes == 0) {
+        disconnectClient(client_fd);
+        return;
+    } else if (socket_bytes < 0) {
+        std::cerr << "Error recv: " << strerror(errno) << std::endl;
+        disconnectClient(client_fd);
+        return;
+    }
+
+    ParseResult result = feedData(_requests[client_fd], buffer, socket_bytes);
+    
+    if (result == PARSE_COMPLETE) {
+        std::cout << "✨ Petición HTTP recibida por completo" << std::endl;
+        HttpRequest& request = _requests[client_fd];
+
+        // --- AQUÍ LLAMARÁN AL ROUTER DE TU COMPAÑERO ---
+        // Tu compañero generará el string del response builder. Por ahora simulamos:
+        _responses[client_fd] = "HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nHello World";
+
+        // Cambiamos el evento a EPOLLOUT para indicarle a epoll que queremos escribir de forma asíncrona
+        struct epoll_event ev;
+        std::memset(&ev, 0, sizeof(ev));
+        ev.events = EPOLLOUT;
+        ev.data.fd = client_fd;
+        epoll_ctl(_epoll_fd, EPOLL_CTL_MOD, client_fd, &ev);
+
+    } else if (result == PARSE_ERROR) {
+        std::cerr << "❌ Error HTTP detectado en el parseo" << std::endl;
+        _responses[client_fd] = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n";
+
+        struct epoll_event ev;
+        std::memset(&ev, 0, sizeof(ev));
+        ev.events = EPOLLOUT;
+        ev.data.fd = client_fd;
+        epoll_ctl(_epoll_fd, EPOLL_CTL_MOD, client_fd, &ev);
+    }
+}
+
+void    Socket::handleClientWrite(int client_fd) {
+    std::string& response = _responses[client_fd];
+    
+    if (response.empty()) return;
+    int bytes_sent = send(client_fd, response.c_str(), response.length(), 0);
+    if (bytes_sent < 0) {
+        std::cerr << "Error send: " << strerror(errno) << std::endl;
+        disconnectClient(client_fd);
+        return;
+    }
+    if (static_cast<size_t>(bytes_sent) < response.length()) {
+        response = response.substr(bytes_sent);
+        return;
+    }
+    HttpRequest& request = _requests[client_fd];
+    if (request.headers["connection"] == "close") {
+        disconnectClient(client_fd);
+    } else {
+        // Si es Keep-Alive, limpiamos buffers y volvemos a poner el socket en modo lectura (EPOLLIN)
+        _requests[client_fd].reset();
+        _responses.erase(client_fd);
+
+        struct epoll_event ev;
+        std::memset(&ev, 0, sizeof(ev));
+        ev.events = EPOLLIN;
+        ev.data.fd = client_fd;
+        epoll_ctl(_epoll_fd, EPOLL_CTL_MOD, client_fd, &ev);
+    }
+}
+
 void    Socket::runServer() {
     _epoll_fd = epoll_create(1);
     if (_epoll_fd == -1) {
         throw std::runtime_error("Error epoll_create: " + std::string(strerror(errno)));
     }
-    struct epoll_event events;
-    std::memset(&events, 0, sizeof(events));
-    events.events = EPOLLIN;
+    struct epoll_event ev;
+    std::memset(&ev, 0, sizeof(ev));
+    ev.events = EPOLLIN;
     for (std::vector<ListeningSocket>::iterator listener = _listenters.begin(); listener != _listenters.end(); ++listener) {
-        events.data.fd = listener->_fd;
-        if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, listener->_fd, &events) < 0) {
+        ev.data.fd = listener->_fd;
+        if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, listener->_fd, &ev) < 0) {
             throw std::runtime_error("Error epoll ctl: " + std::string(strerror(errno)));
         }
     }
     struct epoll_event event_list[128];
-    std::cout << "🚀 Core Network activado. Esperando eventos..." << std::endl;
+    std::cout << "🚀 Core Network activado de forma asíncrona total." << std::endl;
     while(true) {
         int num_events = epoll_wait(_epoll_fd, event_list, 128, -1);
         if (num_events < 0) {
@@ -104,44 +215,13 @@ void    Socket::runServer() {
                 }
             }
             if (is_listener) {
-                std::cout << "Nuevo puerto de escucha para el servidor" << std::endl;
-                struct sockaddr_in client_addr;
-                socklen_t client_len = sizeof(client_addr);
-                int client_fd = accept(current_fd, (struct sockaddr *)&client_addr, &client_len); 
-                if (client_fd < 0) {
-                    std::cerr << "Error accept: " << strerror(errno) << std::endl;
-                    continue;
-                }
-                if (fcntl(client_fd, F_SETFL, O_NONBLOCK) < 0) {
-                    std::cerr << "Error fcntl: " << strerror(errno) << std::endl;
-                    close(client_fd);
-                    continue;
-                }
-                struct epoll_event client_event;
-                client_event.events = EPOLLIN;
-                client_event.data.fd = client_fd; 
-                if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event)) {
-                    std::cerr << "Error epoll ctl: " << strerror(errno) << std::endl;
-                    close(client_fd);
-                    continue;
-                }
-                std::cout << "New client connect successfully in fd: " << client_fd << "!" << std::endl;
-            } else {
-                char buffer[4096];
-                std::memset(buffer, 0, sizeof(buffer));
-                int socket_bytes = recv(current_fd, buffer, sizeof(buffer) - 1, 0);
-                if (socket_bytes == 0) {
-                    epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, current_fd, &events);
-                    close(current_fd);
-                } else if (socket_bytes > 0) {
-                    buffer[socket_bytes] = '\0';
-                    std::cout << "Recibido una nueva peticion HTTP :D" << std::endl;
-                    std::cout << buffer << std::endl;
-                } else {
-                    std::cerr << "Error recv: " << strerror(errno) << std::endl;
-                    epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, current_fd, NULL);
-                    close(current_fd);
-                }
+                handleNewConnection(current_fd);
+            }
+            else if (event_list[i].events & EPOLLIN) {
+                handleClientRead(current_fd);
+            }
+            else if (event_list[i].events & EPOLLOUT) {
+                handleClientWrite(current_fd);
             }
         }
     }

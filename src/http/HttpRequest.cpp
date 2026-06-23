@@ -1,4 +1,4 @@
-#include "HttpRequest.hpp"
+#include "webserv.hpp"
 
 HttpRequest::HttpRequest() {
     reset();

@@ -1,6 +1,4 @@
 #include "http/HttpRequestParser.hpp"
-#include <cctype>    // tolower()  -- TODO: confirmar con [compañero] si mover a webserv.hpp
-#include <cstdlib>   // std::atoi() -- TODO: confirmar con [compañero] si mover a webserv.hpp
 
 static std::string toLower(const std::string& str) {
     std::string result = str;
