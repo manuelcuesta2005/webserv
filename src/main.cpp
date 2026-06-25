@@ -1,9 +1,10 @@
 #include "webserv.hpp"
+#include "Socket.hpp"
+#include "Monitor.hpp"
 
 GlobalConfig createDefaultConfig() {
     GlobalConfig config;
     
-    // Configuración del Servidor 1 (Ejemplo: Puerto 8080)
     ServerConfig server1;
     ListenEndpoint listen1;
     listen1.host = "127.0.0.1";
@@ -12,7 +13,6 @@ GlobalConfig createDefaultConfig() {
     server1.server_names.push_back("localhost");
     config.servers.push_back(server1);
 
-    // Configuración del Servidor 2 (Ejemplo: Puerto 9090 para pruebas de multipuerto)
     ServerConfig server2;
     ListenEndpoint listen2;
     listen2.host = "127.0.0.1";
@@ -35,28 +35,30 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2) {
             std::cout << "📖 Leyendo archivo de configuración: " << argv[1] << "..." << std::endl;
-            // Aquí llamarías a la función de tu parser de archivos, ej:
-            // config = parseConfigFile(argv[1]);
-            
-            // NOTA: Por ahora usamos la por defecto para que puedas compilar e ir probando
             config = createDefaultConfig();
         } else {
             std::cout << "⚠️ No se especificó archivo. Cargando configuración dinámica por defecto..." << std::endl;
             config = createDefaultConfig();
         }
 
-        // 2. Instanciar el Core de Red (Tu clase Socket)
-        Socket server;
+        // 1. Instanciar la Capa de Red Pura
+        Socket serverSockets;
 
         std::cout << "⚙️ Inicializando puertos y endpoints..." << std::endl;
-        server.setPorts(config);
+        serverSockets.setPorts(config);
 
         std::cout << "🔌 Configurando sockets de escucha (Bind & Listen)..." << std::endl;
-        server.configSocket();
+        serverSockets.configSocket();
 
-        // 3. Lanzar el Servidor en el Event Loop (epoll)
-        // Este método es un bucle infinito, el servidor se quedará aquí corriendo.
-        server.runServer();
+        // 2. Instanciar e inicializar el Monitor (Event Loop / epoll)
+        Monitor eventLoop;
+        
+        std::cout << "🎛️ Inicializando el Monitor asíncrono (epoll)..." << std::endl;
+        // Le pasamos los sockets ya configurados de la red al bucle de eventos
+        eventLoop.init(serverSockets.getListeners());
+
+        // 3. Lanzar el Servidor en el bucle infinito
+        eventLoop.runServer();
 
     } 
     catch (const std::exception& e) {
