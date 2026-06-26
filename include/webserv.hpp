@@ -8,14 +8,17 @@
 
 /* Librerias dentro del Lenguaje de C++ */
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sstream>
 #include <cstring>
 #include <cctype>
 #include <cstdlib>
+#include <cstdio>
 #include <sys/socket.h>
 #ifdef __linux__
 # include <sys/epoll.h>
@@ -41,6 +44,8 @@
 #include "router/Router.hpp"
 
 // Core: Clases usadas para la configuracion e inicializacion del servidor
-#include "core/socket.hpp"
+#include "core/Socket.hpp"
+#include "core/Monitor.hpp"
+#include "core/Methods.hpp"
 
 #endif
