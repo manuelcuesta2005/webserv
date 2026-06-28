@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>403 — webserv</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500&display=swap');
+  :root {
+    --bg: #0c0f0a; --bg-raised: #12160f; --line: #25301f;
+    --text: #d8dcd0; --text-dim: #7c8572; --red: #c4574a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .box { max-width: 480px; width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-raised); overflow: hidden; }
+  .bar { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--red); padding: 0.9rem 1.4rem; border-bottom: 1px solid var(--line); }
+  .body { padding: 2.4rem 1.6rem; text-align: center; }
+  .code { font-family: 'JetBrains Mono', monospace; font-size: 3.4rem; font-weight: 700; color: var(--red); line-height: 1; margin-bottom: 0.6rem; }
+  h1 { font-size: 1.05rem; font-weight: 500; margin-bottom: 0.6rem; }
+  p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.5; max-width: 360px; margin: 0 auto; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="bar">HTTP/1.1 403 Forbidden</div>
+    <div class="body">
+      <div class="code">403</div>
+      <h1>Acceso no permitido</h1>
+      <p>El recurso existe, pero este servidor no está configurado para mostrarlo directamente.</p>
+    </div>
+  </div>
+</body>
+</html>

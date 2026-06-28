@@ -22,7 +22,7 @@ void    Monitor::init(const std::vector<ListeningSocket>& listeners) {
 
     for (std::vector<ListeningSocket>::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it) {
         events.data.fd = it->_fd;
-        if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, it->_fd, &ev) < 0) {
+        if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, it->_fd, &events) < 0) {
             throw std::runtime_error("Error epoll_ctl en listener: " + std::string(strerror(errno)));
         }
     }

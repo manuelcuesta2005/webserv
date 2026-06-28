@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>webserv :: internal.local:9090</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0a0c;
+    --bg-raised: #161013;
+    --line: #2e1f26;
+    --text: #ddd6d9;
+    --text-dim: #8a7980;
+    --rose: #c4607f;
+    --rose-dim: #4f2533;
+    --green: #6fae5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--line) 0px, var(--line) 1px,
+      transparent 1px, transparent 14px
+    );
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .panel {
+    max-width: 520px;
+    width: 100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--rose-dim);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .panel-head {
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--text-dim);
+  }
+  .panel-head .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--rose);
+    display: inline-block;
+    margin-right: 0.5rem;
+  }
+
+  .panel-body { padding: 2.2rem 1.6rem; text-align: center; }
+
+  .lock-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    color: var(--rose);
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+  }
+
+  p {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .meta {
+    margin-top: 1.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  .meta .ok { color: var(--green); }
+</style>
+</head>
+<body>
+
+  <div class="panel">
+    <div class="panel-head">
+      <span><span class="dot"></span>internal.local</span>
+      <span>127.0.0.1:9090</span>
+    </div>
+    <div class="panel-body">
+      <div class="lock-icon">⌁</div>
+      <h1>Red interna</h1>
+      <p>Este servidor sólo escucha en loopback. No es accesible desde fuera de esta máquina.</p>
+      <div class="meta">
+        <span>client_max_body 5MB</span>
+        <span class="ok">200 OK</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

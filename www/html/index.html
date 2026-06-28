@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>webserv :: localhost:8080</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0c0f0a;
+    --bg-raised: #12160f;
+    --line: #25301f;
+    --text: #d8dcd0;
+    --text-dim: #7c8572;
+    --amber: #e8a23d;
+    --amber-dim: #6b5328;
+    --green: #6fae5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    border-bottom: 1px solid var(--line);
+    padding: 1.1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(12,15,10,0.85);
+    backdrop-filter: blur(4px);
+    position: sticky;
+    top: 0;
+  }
+
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .brand span { color: var(--amber); }
+
+  .status-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--green);
+    border: 1px solid var(--amber-dim);
+    padding: 0.3rem 0.7rem;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .status-pill::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite ease-in-out;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 4rem 2rem;
+  }
+
+  .hero {
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 1.2rem;
+  }
+  .eyebrow::before { content: '$ curl -I '; color: var(--amber-dim); }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.4rem;
+  }
+  h1 .accent { color: var(--amber); }
+
+  .lede {
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    max-width: 540px;
+    line-height: 1.6;
+    margin-bottom: 2.6rem;
+  }
+
+  .response-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .response-card .bar {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .response-card .bar span {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .response-card pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+    color: var(--text-dim);
+  }
+  .response-card pre .k { color: var(--amber); }
+  .response-card pre .v { color: var(--text); }
+  .response-card pre .s { color: var(--green); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 1.2rem 2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-pill::before { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">web<span>serv</span> /1.1</div>
+    <div class="status-pill">listening</div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <p class="eyebrow">/ http GET 200</p>
+      <h1>Esta respuesta fue<br>servida desde <span class="accent">C++98</span>.</h1>
+      <p class="lede">
+        Sin frameworks, sin librerías externas. Un socket, un epoll y un parser
+        escrito a mano interpretando cada byte de esta petición HTTP/1.1.
+      </p>
+
+      <div class="response-card">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <pre><span class="s">HTTP/1.1 200 OK</span>
+<span class="k">Content-Type:</span> <span class="v">text/html</span>
+<span class="k">Server:</span> <span class="v">webserv/1.1 (custom)</span>
+<span class="k">Connection:</span> <span class="v">keep-alive</span></pre>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>42 · webserv</span>
+    <span>puerto 8080</span>
+  </footer>
+
+</body>
+</html>

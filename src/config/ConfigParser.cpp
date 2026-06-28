@@ -3,17 +3,6 @@
 #include <sstream>
 #include <cstdlib>
 
-// =============================================================
-//  ConfigParser.cpp
-//  Paso 1: helpers de cursor.
-//  Las funciones de parsing recursivo (parseGlobal, parseServerBlock...)
-//  se irán añadiendo en pasos siguientes.
-// =============================================================
-
-
-// -------------------------------------------------------------
-//  Constructor: hecho.
-// -------------------------------------------------------------
 ConfigParser::ConfigParser()
     : _tokens(), _pos(0)
 {}
@@ -42,24 +31,6 @@ const Token& ConfigParser::peek() const
     return _tokens[_pos];
 }
 
-
-// -------------------------------------------------------------
-//  consume(): devuelve el token actual y avanza el cursor.
-//
-//  TODO: rellena esta función.
-//
-//  Pasos:
-//    1. Guarda una referencia al token actual con peek().
-//    2. Incrementa _pos.
-//    3. Devuelve la referencia.
-//
-//  Pista: el tipo de retorno es 'const Token&'. Para guardar la
-//  referencia usa: const Token& tok = peek();
-//  Y luego return tok;
-//
-//  Cuidado: NO devuelvas peek() después de incrementar _pos —
-//  estarías devolviendo el SIGUIENTE token, no el actual.
-// -------------------------------------------------------------
 const Token& ConfigParser::consume()
 {
     // TODO
@@ -71,16 +42,6 @@ const Token& ConfigParser::consume()
 
 // -------------------------------------------------------------
 //  expect(type, errMsg): comprueba el tipo del token actual.
-//
-//  TODO: rellena esta función.
-//
-//  Pasos:
-//    1. Si peek().type NO es el tipo esperado:
-//         - Lanza ConfigError(errMsg, peek().line, peek().column).
-//    2. Si lo es:
-//         - return consume();
-//
-//  Pista: el throw se hace con:
 //    throw ConfigError(errMsg, peek().line, peek().column);
 //
 //  Esto crea un ConfigError nuevo y lo lanza como excepción.
@@ -99,9 +60,7 @@ const Token& ConfigParser::expect(TokenType type, const std::string& errMsg)
 // -------------------------------------------------------------
 //  match(type): comprueba el tipo sin consumir.
 //
-//  TODO: rellena esta función.
-//
-//  Una sola línea. Devuelve si peek().type es igual al tipo dado.
+//  Devuelve si peek().type es igual al tipo dado.
 // -------------------------------------------------------------
 bool ConfigParser::match(TokenType type) const
 {
@@ -113,12 +72,6 @@ bool ConfigParser::match(TokenType type) const
 // -------------------------------------------------------------
 //  matchWord(word): comprueba si el token actual es un WORD
 //  con el valor textual dado.
-//
-//  TODO: rellena esta función.
-//
-//  Devuelve true SOLO si:
-//    - peek().type es TOK_WORD
-//    - Y peek().value es igual al string 'word'
 //
 //  Para comparar dos std::string: a == b funciona. No uses strcmp.
 // -------------------------------------------------------------
@@ -132,12 +85,8 @@ bool ConfigParser::matchWord(const std::string& word) const
 
 
 // -------------------------------------------------------------
-//  parse(path): punto de entrada. Hecho.
 //  Lee el archivo, lo tokeniza, guarda los tokens en _tokens,
 //  y lanza el parsing recursivo desde parseGlobal().
-//
-//  De momento parseGlobal() está sin implementar — devuelve
-//  un GlobalConfig vacío para que el código compile.
 // -------------------------------------------------------------
 GlobalConfig ConfigParser::parse(const std::string& path)
 {

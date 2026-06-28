@@ -1,6 +1,6 @@
 #include "webserv.hpp"
-#include "Socket.hpp"
-#include "Monitor.hpp"
+#include "core/socket.hpp"
+#include "core/Monitor.hpp"
 
 GlobalConfig createDefaultConfig() {
     GlobalConfig config;
@@ -35,7 +35,8 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2) {
             std::cout << "📖 Leyendo archivo de configuración: " << argv[1] << "..." << std::endl;
-            config = createDefaultConfig();
+            ConfigParser parser;
+            config = parser.parse(argv[1]);
         } else {
             std::cout << "⚠️ No se especificó archivo. Cargando configuración dinámica por defecto..." << std::endl;
             config = createDefaultConfig();

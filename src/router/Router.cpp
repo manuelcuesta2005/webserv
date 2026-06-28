@@ -8,7 +8,8 @@ const LocationConfig* matchLocation(const ServerConfig& server, const std::strin
         if (uri.compare(0, it->path.length(), it->path) == 0) {
             bool exactMatch = (uri.length() == it->path.length());
             bool slashAfter = (uri.length() > it->path.length() && uri[it->path.length()] == '/');
-            if ((exactMatch || slashAfter) && it->path.length() > bestLength) {
+            bool isRoot = (it->path == "/");
+            if ((exactMatch || slashAfter || isRoot) && it->path.length() > bestLength) {
                 best = &(*it);
                 bestLength = it->path.length();
             }
@@ -26,5 +27,8 @@ bool isMethodAllowed(const LocationConfig* location, const std::string& method) 
 
 std::string resolvePath(const LocationConfig* location, const std::string& uri) {
     std::string remainder = uri.substr(location->path.length());
+    if (!remainder.empty() && remainder[0] != '/') {
+        remainder = "/" + remainder;
+    }
     return location->root + remainder;
 }

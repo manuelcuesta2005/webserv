@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>webserv :: admin.local:8081</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0d12;
+    --bg-raised: #10141b;
+    --line: #1f2733;
+    --text: #d6dce6;
+    --text-dim: #6c7689;
+    --cyan: #4fb8c4;
+    --cyan-dim: #234a4f;
+    --green: #6fae5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--line);
+    padding: 1.1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .brand span { color: var(--cyan); }
+
+  .status-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--green);
+    border: 1px solid var(--cyan-dim);
+    padding: 0.3rem 0.7rem;
+    border-radius: 100px;
+  }
+
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 3.5rem 2rem;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+  .eyebrow::before { content: '/admin · vhost '; color: var(--cyan); }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 700;
+    margin-bottom: 2.4rem;
+  }
+  h1 .accent { color: var(--cyan); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .grid .cell {
+    background: var(--bg-raised);
+    padding: 1.4rem;
+  }
+  .cell .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.6rem;
+  }
+  .cell .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    color: var(--text);
+  }
+  .cell .value.ok { color: var(--green); }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">web<span>serv</span> · admin</div>
+    <div class="status-pill">vhost activo</div>
+  </header>
+
+  <main>
+    <p class="eyebrow">listen 0.0.0.0:8081</p>
+    <h1>Panel del <span class="accent">virtual host</span> admin.local</h1>
+
+    <div class="grid">
+      <div class="cell">
+        <div class="label">SERVER_NAME</div>
+        <div class="value">admin.local</div>
+      </div>
+      <div class="cell">
+        <div class="label">ROOT</div>
+        <div class="value">./www/admin</div>
+      </div>
+      <div class="cell">
+        <div class="label">MAX BODY SIZE</div>
+        <div class="value">1 MB</div>
+      </div>
+      <div class="cell">
+        <div class="label">ESTADO</div>
+        <div class="value ok">200 OK</div>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>
