@@ -47,7 +47,7 @@
 #include "router/Router.hpp"
 
 // Core: Clases usadas para la configuracion e inicializacion del servidor
-#include "core/Socket.hpp"
+#include "core/socket.hpp"
 #include "core/Monitor.hpp"
 #include "core/Methods.hpp"
 #include "core/HandlerCGI.hpp"

@@ -49,6 +49,13 @@ ParseResult parseRequestLine(HttpRequest& req) {
 
     std::string method  = line.substr(0, firstSpace);
     std::string uri     = line.substr(firstSpace + 1, secondSpace - firstSpace - 1);
+    size_t queryPos = uri.find('?');
+    std::string path = uri;
+    std::string query = "";
+    if (queryPos != std::string::npos) {
+        path = uri.substr(0, queryPos);
+        query = uri.substr(queryPos + 1);
+    }
     std::string version = line.substr(secondSpace + 1);
 
     if (method != "GET" && method != "POST" && method != "DELETE") {
@@ -56,7 +63,7 @@ ParseResult parseRequestLine(HttpRequest& req) {
         return PARSE_ERROR;
     }
 
-    if (uri.empty() || uri[0] != '/') {
+    if (path.empty() || path[0] != '/') {
         req.state = ERROR_STATE;
         return PARSE_ERROR;
     }
@@ -67,7 +74,8 @@ ParseResult parseRequestLine(HttpRequest& req) {
     }
 
     req.method  = method;
-    req.uri     = uri;
+    req.uri     = path;
+    req.query_string = query;
     req.version = version;
 
     req.buffer.erase(0, pos + 2);

@@ -266,6 +266,19 @@ void ConfigParser::parseLocationDirective(LocationConfig& loc, bool& seenClientM
                               val.line, val.column);
         expect(TOK_SEMICOLON, "expected ';' after 'autoindex'");
     }
+    else if (matchWord("auth_required"))
+    {
+        consume();
+        const Token& val = expect(TOK_WORD, "expected 'on' or 'off' after 'auth_required'");
+        if (val.value == "on")
+            loc.requires_auth = true;
+        else if (val.value == "off")
+            loc.requires_auth = false;
+        else
+            throw ConfigError("expected 'on' or 'off' for 'auth_required'",
+                           val.line, val.column);
+        expect(TOK_SEMICOLON, "expected ';' after 'auth_required'");
+    }
     else if (matchWord("return"))
     {
         consume();

@@ -29,6 +29,7 @@ struct HttpRequest {
 
     std::string                         method;
     std::string                         uri;
+    std::string                         query_string;
     std::string                         version;
 
     std::map<std::string, std::string>  headers;

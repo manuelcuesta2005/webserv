@@ -25,6 +25,7 @@ GlobalConfig createDefaultConfig() {
 }
 
 int main(int argc, char** argv) {
+    srand(time(NULL));
     GlobalConfig config;
 
     if (argc > 2) {

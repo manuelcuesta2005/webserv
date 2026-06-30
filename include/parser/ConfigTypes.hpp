@@ -10,7 +10,7 @@
 // =============================================================
 //  ConfigTypes.hpp
 //  Estructuras de datos que produce el parser de configuración.
-//  Todo el resto del servidor (event loop, request handler, CGI...)
+//  Todo el resto del servidor (event loop, request handler, CGI...git)
 //  consulta estas estructuras en modo solo-lectura.
 // =============================================================
 
@@ -47,6 +47,7 @@ struct LocationConfig
     // Subida de archivos
     bool                        upload_enabled;    // default false
     std::string                 upload_store;      // ruta donde guardar uploads
+    bool                        requires_auth;     // default false
 
     // CGI: mapa extensión -> intérprete
     // Ej: ".php" -> "/usr/bin/php-cgi", ".py" -> "/usr/bin/python3"

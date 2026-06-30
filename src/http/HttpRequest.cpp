@@ -11,6 +11,7 @@ void HttpRequest::reset() {
     buffer.clear();
     method.clear();
     uri.clear();
+    query_string.clear();
     version.clear();
     headers.clear();
     body.clear();

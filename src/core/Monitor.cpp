@@ -176,7 +176,7 @@ void Monitor::runServer() {
                     ss << "HTTP/1.1 200 OK\r\n" << cgi_buffer;
                     _responses[client_fd] = ss.str();
                 } else {
-                    _response[client_fd] = "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n";
+                    _responses[client_fd] = "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n";
                 }
                 epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, current_fd, NULL);
                 close(current_fd);
