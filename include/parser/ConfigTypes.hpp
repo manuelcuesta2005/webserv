@@ -47,6 +47,7 @@ struct LocationConfig
     // Subida de archivos
     bool                        upload_enabled;    // default false
     std::string                 upload_store;      // ruta donde guardar uploads
+    bool                        requires_auth;     // default false
 
     // CGI: mapa extensión -> intérprete
     // Ej: ".php" -> "/usr/bin/php-cgi", ".py" -> "/usr/bin/python3"

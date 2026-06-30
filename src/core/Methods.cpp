@@ -61,6 +61,54 @@ static std::string getErrorBody(int code, const ServerConfig* server, const std:
     return defaultBody;
 }
 
+static std::map<std::string, std::string> sessions; // session_id -> username
+
+static std::string generateSessionId() {
+    std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::string id;
+    for (int i = 0; i < 32; i++) {
+        id += charset[rand() % charset.length()];
+    }
+    return id;
+}
+
+static std::string getCookieValue(const HttpRequest& request, const std::string& key) {
+    std::map<std::string, std::string>::const_iterator it = request.headers.find("cookie");
+    if (it == request.headers.end()) return "";
+    std::string cookies = it->second;
+    size_t pos = cookies.find(key + "=");
+    if (pos == std::string::npos) return "";
+    size_t start = pos + key.length() + 1;
+    size_t end = cookies.find(';', start);
+    return cookies.substr(start, end - start);
+}
+
+static std::string handleLogin(const HttpRequest& request, const ServerConfig* server) {
+    (void)server;
+    std::string body = request.body;
+    std::string usuario, clave;
+
+    size_t userPos = body.find("usuario=");
+    size_t clavePos = body.find("clave=");
+    if (userPos != std::string::npos) {
+        size_t end = body.find('&', userPos);
+        usuario = body.substr(userPos + 8, end - (userPos + 8));
+    }
+    if (clavePos != std::string::npos) {
+        size_t end = body.find('&', clavePos);
+        clave = body.substr(clavePos + 6, end - (clavePos + 6));
+    }
+
+    if (usuario == "admin" && clave == "1234") {
+        std::string sessionId = generateSessionId();
+        sessions[sessionId] = usuario;
+        std::string headers = "Set-Cookie: session_id=" + sessionId + "\r\n";
+        headers += "Location: /\r\n";
+        return buildResponse(302, "text/html", "", headers);
+    }
+    return buildResponse(401, "text/html", "<html><body><h1>Credenciales incorrectas</h1></body></html>");
+}
+
 Method::Method() { }
 
 Method::~Method() { }
@@ -72,9 +120,18 @@ std::string Method::processRequest(HttpRequest& request, const ServerConfig* ser
         std::string body = getErrorBody(404, server, "<html><body><h1>404 Not Found</h1></body></html>");
         return buildResponse(404, "text/html", body);
     }
+    if (request.uri == "/login" && request.method == "POST") {
+        return handleLogin(request, server);
+    }
     if (location->redirect_code != 0) {
         std::cout << "↪️ Redirect " << location->redirect_code << " -> " << location->redirect_target << std::endl;
         return buildResponse(location->redirect_code, "text/html", "", "Location: " + location->redirect_target + "\r\n");
+    }
+    if (location->requires_auth) {
+        std::string sessionId = getCookieValue(request, "session_id");
+        if (sessionId.empty() || sessions.find(sessionId) == sessions.end()) {
+            return buildResponse(302, "text/html", "", "Location: /login\r\n");
+        }
     }
     if (!isMethodAllowed(location, request.method)) {
         std::cerr << "❌ 405 Method Not Allowed: " << request.method << std::endl;

@@ -17,6 +17,7 @@ LocationConfig::LocationConfig()
     , index_files()
     , upload_enabled(false)
     , upload_store()
+    , requires_auth(false)
     , cgi_handlers()
     , client_max_body_size(-1)     // -1 = hereda del server
 {}
